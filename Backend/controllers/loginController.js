@@ -1,6 +1,8 @@
 const bcryptjs = require("bcryptjs");
 const validator = require("validator");
 const userModel = require("../models/user");
+const protect = require("../middleware/authoristionMiddleware");
+const jwt = require("jsonwebtoken");
 const login = async (req, res) => {
   const { email, password } = req.body || {};
   if (
@@ -36,19 +38,23 @@ const login = async (req, res) => {
         message: "incorect email or passoword",
       });
     }
-    if(checkUser.isActive   === false){
-         return res.status(401).json({
+    if (checkUser.isActive === false) {
+      return res.status(401).json({
         message: "incorrect email or password",
       });
     }
+    const tokens = jwt.sign({ id: checkUser._id }, process.env.JWT_SECURE, {
+      expiresIn: "10m",
+    });
     res.status(200).json({
       message: "Successful login",
       user: {
-      id:checkUser._id,
-      name: checkUser.name,
-      email:checkUser.email,
-      role:checkUser.role
-    }
+        id: checkUser._id,
+        name: checkUser.name,
+        email: checkUser.email,
+        role: checkUser.role,
+      },
+      token: tokens,
     });
   } catch (error) {
     console.error(error.message);
@@ -57,4 +63,14 @@ const login = async (req, res) => {
     });
   }
 };
-module.exports = { login };
+const getMe = (req, res) => {
+  res.status(200).json({
+    user:{
+        id:req.user.id,
+        name:req.user.name,
+        email:req.user.email,
+        role:req.user.role
+    }
+  });
+};
+module.exports = { login, getMe };
