@@ -1,7 +1,7 @@
 const bcryptjs = require("bcryptjs");
 const validator = require("validator");
 const userModel = require("../models/user");
-const protect = require("../middleware/authoristionMiddleware");
+const protect = require("../middleware/AuthenticationMiddleware");
 const jwt = require("jsonwebtoken");
 const login = async (req, res) => {
   const { email, password } = req.body || {};
@@ -59,7 +59,7 @@ const login = async (req, res) => {
   } catch (error) {
     console.error(error.message);
     res.status(500).json({
-      message: "Error serve",
+      message: "Error server",
     });
   }
 };
