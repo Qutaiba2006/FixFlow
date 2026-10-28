@@ -8,8 +8,10 @@ const {
   getReportById,
   getMyReports,
 } = require("../controllers/reportController");
+const { uploadReportImages } = require("../controllers/imageController");
 const { protect } = require("../middleware/AuthenticationMiddleware");
 const { authorize } = require("../middleware/AuthorizationMiddleware");
+const upload = require("../middleware/uploadMiddleware");
 const {
   validateReportId,
   findReport,
@@ -50,4 +52,12 @@ router.patch(
 );
 router.get("/mine", protect, getMyReports);
 router.get("/:id", protect, validateReportId, findReport, getReportById);
+router.post(
+  "/:id/images",
+  protect,
+  validateReportId,
+  findReport,
+  upload.array("images", 2),
+  uploadReportImages,
+);
 module.exports = router;
