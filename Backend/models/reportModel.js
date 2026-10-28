@@ -55,6 +55,27 @@ const reportSchema = new mongoose.Schema(
       ref: "User",
       default: null,
     },
+    timeline: [
+      {
+        action: {
+          type: String,
+          enum: ["created", "assigned", "status_changed"],
+          required: true,
+        },
+        performedBy: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: "User",
+          required: true,
+        },
+        details: {
+          type: String,
+        },
+        at: {
+          type: Date,
+          default: Date.now,
+        },
+      },
+    ],
   },
   { timestamps: true },
 );

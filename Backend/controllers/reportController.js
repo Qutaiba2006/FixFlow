@@ -31,6 +31,13 @@ const createReport = async (req, res) => {
       description: description,
       location: location,
       reportedBy: req.user._id,
+      timeline: [
+        {
+          action: "created",
+          performedBy: req.user._id,
+          details: "Report submitted",
+        },
+      ],
     });
     res.status(201).json({
       message: "Report is created",
@@ -131,6 +138,11 @@ const assignTechnician = async (req, res) => {
       });
     }
     req.report.assignedTo = checkUser._id;
+    req.report.timeline.push({
+      action: "assigned",
+      performedBy: req.user._id,
+      details: "Technician assigned",
+    });
     await req.report.save();
     return res.status(200).json({
       message: "Technician assigned successfully",
@@ -161,12 +173,51 @@ const updateStatus = async (req, res) => {
         message: "You do not have permission to update this report",
       });
     }
+    if (req.report.status === status) {
+      return res.status(200).json({
+        message: "Report already has this status",
+        status,
+      });
+    }
     req.report.status = status;
+    req.report.timeline.push({
+      action: "status_changed",
+      performedBy: req.user._id,
+      details: `Status changed to ${status}`,
+    });
     await req.report.save();
     return res.status(200).json({
       message: "Status changed successfully",
       status: req.report.status,
     });
+  } catch (error) {
+    console.error(error.message);
+    return res.status(500).json({
+      message: "Internal server error",
+    });
+  }
+};
+const getReportById = async (req, res) => {
+  try {
+    res.status(200).json({
+      report: req.report,
+    });
+  } catch (error) {
+    console.error(error.message);
+    return res.status(500).json({
+      message: "Internal server error",
+    });
+  }
+};
+const getMyReports = async (req, res) => {
+  try {
+    const reports = await reportModel
+      .find({
+        reportedBy: req.user._id,
+      })
+      .populate("location", "name buildingCode floor")
+      .sort({ createdAt: -1 });
+    return res.status(200).json(reports);
   } catch (error) {
     console.error(error.message);
     return res.status(500).json({
@@ -181,4 +232,6 @@ module.exports = {
   toggleAffected,
   assignTechnician,
   updateStatus,
+  getReportById,
+  getMyReports,
 };
