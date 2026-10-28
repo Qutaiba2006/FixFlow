@@ -1,9 +1,13 @@
-const {createReport,getReports,toggleSupport,toggleAffected} = require("../controllers/reportController");
+const {createReport,getReports,toggleSupport,toggleAffected,assignTechnician,updateStatus} = require("../controllers/reportController");
 const {protect} = require("../middleware/AuthenticationMiddleware");
+const {authorize} = require("../middleware/AuthorizationMiddleware");
+const {validateReportId,findReport} = require("../middleware/validateReport");
 const express = require("express");
 const router = express.Router();
 router.post("/",protect,createReport);
 router.get("/",protect,getReports);
-router.patch("/:id/support",protect,toggleSupport);
-router.patch("/:id/affected",protect,toggleAffected);
+router.patch("/:id/support",protect,validateReportId,findReport,toggleSupport);
+router.patch("/:id/affected",protect,validateReportId,findReport,toggleAffected);
+router.patch("/:id/assign",protect,authorize("admin"),validateReportId,findReport,assignTechnician);
+router.patch("/:id/status",protect,authorize("admin","technician"),validateReportId,findReport,updateStatus);
 module.exports=router;

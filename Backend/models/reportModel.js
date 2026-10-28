@@ -36,10 +36,25 @@ const reportSchema = new mongoose.Schema(
       },
     ],
     priorityScore: {
-      type:Number,
-      default:0,
-      min:0
-    }
+      type: Number,
+      default: 0,
+      min: 0,
+    },
+    status: {
+      type: String,
+      enum: ["open", "in_progress", "resolved"],
+      default: "open",
+    },
+    priority: {
+      type: String,
+      enum: ["low", "medium", "high"],
+      default: "medium",
+    },
+    assignedTo: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      default: null,
+    },
   },
   { timestamps: true },
 );
