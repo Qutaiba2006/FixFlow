@@ -5,6 +5,7 @@ const healthRoutes = require("./routes/healthRoutes");
 const authRouters = require("./routes/registerRout");
 const login = require("./routes/loginRout");
 const location= require("./routes/locationRoutes");
+const report= require("./routes/ReportRoutes");
 const connectDB = require("./config/db");
 const app = express();
 let PORT = 5000;
@@ -13,6 +14,7 @@ app.use("/api/health", healthRoutes);
 app.use("/api/auth", authRouters);
 app.use("/api/auth", login);
 app.use("/api/locations", location);
+app.use("/api/reports", report);
 const startServer = async () => {
   try {
     await connectDB();
