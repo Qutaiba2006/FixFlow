@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
 import axios from "axios";
 import ReportCard from "../components/ReportCard";
 function Dashboard() {
@@ -76,20 +77,31 @@ function Dashboard() {
   };
   return (
     <div className="container py-4">
-      <h2 className="fw-bold">Campus Feed</h2>
-      <p className="text-secondary">
-        See and follow maintenance reports around campus.
-      </p>
-      {reports.map((elem) => {
-        return (
-          <ReportCard
-            key={elem._id}
-            report={elem}
-            onSupport={handleSupport}
-            onAffected={handleAffected}
-          />
-        );
-      })}
+      <div className="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
+        <div>
+          <h2 className="fw-bold text-dark mb-2">Campus Feed</h2>
+          <p className="text-secondary mb-0">
+            See and follow maintenance reports around campus.
+          </p>
+        </div>
+        <Link to="/reports/new" className="btn btn-primary align-self-start flex-shrink-0">
+          <i className="bi bi-plus-circle me-2"></i>
+          Create Report
+        </Link>
+      </div>
+      <div className="row g-3">
+        {reports.map((elem) => {
+          return (
+            <div key={elem._id} className="col-12 col-md-6 col-xl-4">
+              <ReportCard
+                report={elem}
+                onSupport={handleSupport}
+                onAffected={handleAffected}
+              />
+            </div>
+          );
+        })}
+      </div>
     </div>
   );
 }
