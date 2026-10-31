@@ -6,6 +6,7 @@ import Account from "./pages/Account";
 import { Route, Routes } from "react-router-dom";
 import CreateReport from "./pages/CreateReport";
 import ProtectedRoute from "./components/ProtectedRoute";
+import MyReports from "./pages/MyReports";
 import "./App.css";
 function App() {
   return (
@@ -35,6 +36,14 @@ function App() {
           element={
             <ProtectedRoute>
               <Account />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/my-reports"
+          element={
+            <ProtectedRoute>
+              <MyReports />
             </ProtectedRoute>
           }
         />
