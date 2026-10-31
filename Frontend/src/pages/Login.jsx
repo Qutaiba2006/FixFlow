@@ -18,6 +18,7 @@ function Login() {
         },
       );
       localStorage.setItem("JWT", response.data.token);
+      localStorage.setItem("user", JSON.stringify(response.data.user));
       navigate("/dashboard");
     } catch (error) {
       setErrorMessage(error.response?.data?.message || "Sign in  failed");

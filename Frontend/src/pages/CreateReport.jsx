@@ -66,7 +66,6 @@ function CreateReport() {
           `http://localhost:5000/api/reports/${reportId}/images`,
           formData,
           {
-            timeout: 75_000,
             headers: {
               Authorization: `Bearer ${token}`,
             },
