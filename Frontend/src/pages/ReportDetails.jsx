@@ -11,6 +11,14 @@ function ReportDetails() {
     in_progress: "text-bg-primary",
     resolved: "text-bg-success",
   };
+  const timelineActions = {
+    created: "Created",
+    assigned: "Assigned",
+    status_changed: "Status changed",
+  };
+  const timeline = (report?.timeline || [])
+    .slice()
+    .sort((a, b) => new Date(a.at) - new Date(b.at));
 
   useEffect(() => {
     const fetchReport = async () => {
@@ -104,6 +112,35 @@ function ReportDetails() {
             ) : (
               <p className="text-secondary mt-3 mb-0">No images available.</p>
             )}
+            <div className="border-top mt-4 pt-3">
+              <h4 className="fw-bold text-dark mb-3">Maintenance Timeline</h4>
+              {timeline.length > 0 ? (
+                <ol className="list-group list-group-flush">
+                  {timeline.map((event) => {
+                    return (
+                      <li key={event._id} className="list-group-item px-0 py-3">
+                        <div className="d-flex flex-column flex-sm-row justify-content-between align-items-sm-center gap-2">
+                          <span className="badge text-bg-primary align-self-start">
+                            {timelineActions[event.action] || event.action}
+                          </span>
+                          <time
+                            dateTime={event.at}
+                            className="text-secondary small"
+                          >
+                            {new Date(event.at).toLocaleString()}
+                          </time>
+                        </div>
+                        {event.details && (
+                          <p className="text-break mt-2 mb-0">{event.details}</p>
+                        )}
+                      </li>
+                    );
+                  })}
+                </ol>
+              ) : (
+                <p className="text-secondary mb-0">No maintenance history yet.</p>
+              )}
+            </div>
           </div>
         </div>
       )}
