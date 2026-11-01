@@ -6,12 +6,18 @@ import Account from "./pages/Account";
 import { Route, Routes } from "react-router-dom";
 import CreateReport from "./pages/CreateReport";
 import ProtectedRoute from "./components/ProtectedRoute";
+import { useLocation } from "react-router-dom";
 import MyReports from "./pages/MyReports";
+import ReportDetails from "./pages/ReportDetails";
 import "./App.css";
 function App() {
+  const location = useLocation();
+  const showNavbar =
+    !["/login", "/register"].includes(location.pathname) &&
+    Boolean(localStorage.getItem("JWT"));
   return (
     <div>
-      <Navbar />
+      {showNavbar && <Navbar />}
       <Routes>
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
@@ -28,6 +34,14 @@ function App() {
           element={
             <ProtectedRoute>
               <CreateReport />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/reports/:id"
+          element={
+            <ProtectedRoute>
+              <ReportDetails />
             </ProtectedRoute>
           }
         />

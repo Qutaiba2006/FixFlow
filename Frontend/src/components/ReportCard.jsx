@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom";
 function ReportCard({ report, onSupport, onAffected, showActions = true }) {
   const statusClasses = {
     open: "text-bg-warning",
@@ -33,6 +34,12 @@ function ReportCard({ report, onSupport, onAffected, showActions = true }) {
         </p>
         <div className="d-flex flex-wrap justify-content-between align-items-center gap-2 mt-auto border-top pt-3">
           <div className="d-flex flex-wrap gap-2">
+            <Link
+              to={`/reports/${report._id}`}
+              className="btn btn-outline-primary btn-sm"
+            >
+              View Details
+            </Link>
             {showActions && (
               <div className="d-flex flex-wrap gap-2">
                 <button

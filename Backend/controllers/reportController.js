@@ -199,6 +199,10 @@ const updateStatus = async (req, res) => {
 };
 const getReportById = async (req, res) => {
   try {
+    await req.report.populate(
+      "location",
+      "name buildingCode floor"
+    );
     res.status(200).json({
       report: req.report,
     });
