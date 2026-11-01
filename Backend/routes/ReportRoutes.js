@@ -7,6 +7,7 @@ const {
   updateStatus,
   getReportById,
   getMyReports,
+  getAssignedReports,
 } = require("../controllers/reportController");
 const { uploadReportImages } = require("../controllers/imageController");
 const { protect } = require("../middleware/AuthenticationMiddleware");
@@ -51,6 +52,7 @@ router.patch(
   updateStatus,
 );
 router.get("/mine", protect, getMyReports);
+router.get("/assigned", protect, authorize("technician"), getAssignedReports);
 router.get("/:id", protect, validateReportId, findReport, getReportById);
 router.post(
   "/:id/images",

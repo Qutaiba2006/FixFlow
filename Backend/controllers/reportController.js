@@ -199,10 +199,7 @@ const updateStatus = async (req, res) => {
 };
 const getReportById = async (req, res) => {
   try {
-    await req.report.populate(
-      "location",
-      "name buildingCode floor"
-    );
+    await req.report.populate("location", "name buildingCode floor");
     res.status(200).json({
       report: req.report,
     });
@@ -229,6 +226,19 @@ const getMyReports = async (req, res) => {
     });
   }
 };
+const getAssignedReports = async (req, res) => {
+  try {
+    const reports = await reportModel
+      .find({ assignedTo: req.user._id })
+      .populate("location", "name buildingCode floor");
+    res.status(200).json(reports);
+  } catch (error) {
+    console.error(error.message);
+    return res.status(500).json({
+      message: "Internal server error",
+    });
+  }
+};
 module.exports = {
   createReport,
   getReports,
@@ -238,4 +248,5 @@ module.exports = {
   updateStatus,
   getReportById,
   getMyReports,
+  getAssignedReports,
 };
