@@ -32,6 +32,13 @@ function Navbar() {
           </button>
           <div className="collapse navbar-collapse" id="navbarSupportedContent">
             <ul className="navbar-nav me-auto mb-2 mb-lg-0">
+              {user?.role === "admin" && (
+                <li className="nav-item">
+                  <Link className="nav-link" to="/admin-dashboard">
+                    Admin Dashboard
+                  </Link>
+                </li>
+              )}
               {user?.role === "technician" && (
                 <li className="nav-item">
                   <Link className="nav-link" to="/technician-dashboard">

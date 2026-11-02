@@ -10,6 +10,7 @@ import { useLocation } from "react-router-dom";
 import MyReports from "./pages/MyReports";
 import ReportDetails from "./pages/ReportDetails";
 import TechnicianDashboard from "./pages/TechnicianDashboard";
+import AdminDashboard from "./pages/AdminDashboard";
 import "./App.css";
 function App() {
   const location = useLocation();
@@ -35,6 +36,14 @@ function App() {
           element={
             <ProtectedRoute>
               <TechnicianDashboard />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin-dashboard"
+          element={
+            <ProtectedRoute>
+              <AdminDashboard />
             </ProtectedRoute>
           }
         />
