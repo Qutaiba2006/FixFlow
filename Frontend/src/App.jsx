@@ -11,6 +11,7 @@ import MyReports from "./pages/MyReports";
 import ReportDetails from "./pages/ReportDetails";
 import TechnicianDashboard from "./pages/TechnicianDashboard";
 import AdminDashboard from "./pages/AdminDashboard";
+import Analytics from "./pages/Analytics";
 import "./App.css";
 function App() {
   const location = useLocation();
@@ -44,6 +45,14 @@ function App() {
           element={
             <ProtectedRoute>
               <AdminDashboard />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/analytics"
+          element={
+            <ProtectedRoute>
+              <Analytics />
             </ProtectedRoute>
           }
         />

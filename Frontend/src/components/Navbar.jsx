@@ -46,6 +46,13 @@ function Navbar() {
                   </Link>
                 </li>
               )}
+              {user?.role === "admin" && (
+                <li className="nav-item">
+                  <Link className="nav-link" to="/analytics">
+                    Analytics
+                  </Link>
+                </li>
+              )}
               <li className="nav-item">
                 <Link className="nav-link" to="/my-reports">
                   My Reports
