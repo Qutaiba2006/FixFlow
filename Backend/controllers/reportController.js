@@ -3,6 +3,7 @@ const locationModel = require("../models/locationModel");
 const reportModel = require("../models/reportModel");
 const userModel = require("../models/user");
 const cloudinary = require("../config/cloudinary");
+const { sendEmail } = require("../services/emailService");
 const createReport = async (req, res) => {
   const { title, description, location } = req.body || {};
   if (
@@ -130,10 +131,10 @@ const assignTechnician = async (req, res) => {
     const checkUser = await userModel.findById(technicianId);
     if (!checkUser) {
       return res.status(404).json({
-        message: "Technican not found",
+        message: "Technician not found",
       });
     }
-    if (checkUser.role !== "technician" || checkUser.isActive !== true) {
+    if (checkUser.role !== "technician" || !checkUser.isActive) {
       return res.status(400).json({
         message: "User is not an active technician",
       });
@@ -145,6 +146,20 @@ const assignTechnician = async (req, res) => {
       details: "Technician assigned",
     });
     await req.report.save();
+    try {
+      await sendEmail(
+        checkUser.email,
+        "FixFlow - New Maintenance Assignment",
+        `Hello ${checkUser.name},
+         You have been assigned a new maintenance report.
+          Report: ${req.report.title}
+          Report ID: ${req.report._id}
+          Please log in to FixFlow to view the details.
+          FixFlow Team`,
+      );
+    } catch (emailError) {
+      console.error("Failed to send assignment email:", emailError.message);
+    }
     return res.status(200).json({
       message: "Technician assigned successfully",
       report: req.report,
@@ -156,48 +171,90 @@ const assignTechnician = async (req, res) => {
     });
   }
 };
+
 const updateStatus = async (req, res) => {
   try {
     const allowedStatuses = ["open", "in_progress", "resolved"];
     const { status } = req.body || {};
+
     if (!allowedStatuses.includes(status)) {
       return res.status(400).json({
         message: "Invalid status",
       });
     }
+
     const isAdmin = req.user.role === "admin";
+
     const isAssignedTechnician =
       req.user.role === "technician" &&
       req.report.assignedTo?.equals(req.user._id);
+
     if (!isAdmin && !isAssignedTechnician) {
       return res.status(403).json({
         message: "You do not have permission to update this report",
       });
     }
+
     if (req.report.status === status) {
       return res.status(200).json({
         message: "Report already has this status",
         status,
       });
     }
+
     req.report.status = status;
+
     req.report.timeline.push({
       action: "status_changed",
       performedBy: req.user._id,
       details: `Status changed to ${status}`,
     });
+
     await req.report.save();
+
+    if (status === "in_progress" || status === "resolved") {
+      try {
+        const reportOwner = await userModel
+          .findById(req.report.reportedBy)
+          .select("name email");
+        if (reportOwner?.email) {
+          const subject =
+            status === "resolved"
+              ? "FixFlow - Your Report Was Resolved"
+              : "FixFlow - Maintenance Started";
+          const message =
+            status === "resolved"
+              ? "Your maintenance report has been resolved."
+              : "A technician has started working on your report.";
+          await sendEmail(
+            reportOwner.email,
+            subject,
+            `Hello ${reportOwner.name},
+              ${message}
+              Report: ${req.report.title}
+              Report ID: ${req.report._id}
+              Current Status: ${status}
+              You can log in to FixFlow to view the details.
+              FixFlow Team`,
+          );
+        }
+      } catch (emailError) {
+        console.error("Failed to send status email:", emailError.message);
+      }
+    }
     return res.status(200).json({
       message: "Status changed successfully",
       status: req.report.status,
     });
   } catch (error) {
     console.error(error.message);
+
     return res.status(500).json({
       message: "Internal server error",
     });
   }
 };
+
 const getReportById = async (req, res) => {
   try {
     await req.report.populate("location", "name buildingCode floor");
