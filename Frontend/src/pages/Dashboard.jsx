@@ -1,5 +1,4 @@
 import { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
 import axios from "axios";
 import ReportCard from "../components/ReportCard";
 function Dashboard() {
@@ -9,7 +8,7 @@ function Dashboard() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [search, setSearch] = useState("");
-  const [statusFilter, setStatusFilter] = useState("all");
+  const [statusFilter, setStatusFilter] = useState("active");
   const [currentPage, setCurrentPage] = useState(1);
   const searchTerm = search.trim().toLowerCase();
   const filteredReports = reports.filter((report) => {
@@ -17,7 +16,9 @@ function Dashboard() {
       (report.title || "").toLowerCase().includes(searchTerm) ||
       (report.description || "").toLowerCase().includes(searchTerm) ||
       (report.location?.name || "").toLowerCase().includes(searchTerm);
-    const matchesStatus = statusFilter === "all" || report.status === statusFilter;
+    const matchesStatus = statusFilter === "active"
+      ? report.status === "open" || report.status === "in_progress"
+      : statusFilter === "all" || report.status === statusFilter;
     return matchesSearch && matchesStatus;
   });
   const reportsPerPage = 6;
@@ -122,18 +123,12 @@ function Dashboard() {
     }
   };
   return (
-    <div className="container py-4">
-      <div className="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
-        <div>
-          <h2 className="fw-bold text-dark mb-2">Campus Feed</h2>
-          <p className="text-secondary mb-0">
-            See and follow maintenance reports around campus.
-          </p>
-        </div>
-        <Link to="/reports/new" className="btn btn-primary align-self-start flex-shrink-0">
-          <i className="bi bi-plus-circle me-2"></i>
-          Create Report
-        </Link>
+    <div className="container py-3">
+      <div className="mb-3">
+        <h2 className="fw-bold text-dark mb-2">Campus Feed</h2>
+        <p className="text-secondary mb-0">
+          See and follow maintenance reports around campus.
+        </p>
       </div>
       {loading ? (
         <p className="text-secondary" role="status">Loading reports...</p>
@@ -141,9 +136,9 @@ function Dashboard() {
         <div className="alert alert-danger" role="alert">{error}</div>
       ) : (
         <>
-          <div className="row g-3 mb-3">
+          <div className="row g-2 align-items-end mb-3">
             <div className="col-12 col-md-8">
-              <label htmlFor="report-search" className="form-label fw-semibold">
+              <label htmlFor="report-search" className="form-label fw-semibold mb-1">
                 Search Reports
               </label>
               <input
@@ -159,7 +154,7 @@ function Dashboard() {
               />
             </div>
             <div className="col-12 col-md-4">
-              <label htmlFor="report-status" className="form-label fw-semibold">
+              <label htmlFor="report-status" className="form-label fw-semibold mb-1">
                 Status
               </label>
               <select
@@ -171,6 +166,7 @@ function Dashboard() {
                   setCurrentPage(1);
                 }}
               >
+                <option value="active">Active</option>
                 <option value="all">All</option>
                 <option value="open">Open</option>
                 <option value="in_progress">In Progress</option>
@@ -205,7 +201,7 @@ function Dashboard() {
             </div>
           )}
           {totalPages > 1 && (
-            <div className="d-flex flex-column flex-sm-row justify-content-between align-items-sm-center gap-3 mt-4">
+            <div className="d-flex flex-column flex-sm-row justify-content-between align-items-sm-center gap-3 mt-3">
               <p className="text-secondary mb-0">
                 Page {currentPage} of {totalPages}
               </p>

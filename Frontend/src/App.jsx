@@ -12,6 +12,7 @@ import ReportDetails from "./pages/ReportDetails";
 import TechnicianDashboard from "./pages/TechnicianDashboard";
 import AdminDashboard from "./pages/AdminDashboard";
 import Analytics from "./pages/Analytics";
+import Archive from "./pages/Archive";
 import "./App.css";
 function App() {
   const location = useLocation();
@@ -94,6 +95,14 @@ function App() {
           element={
             <ProtectedRoute>
               <MyReports />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/archive"
+          element={
+            <ProtectedRoute>
+              <Archive />
             </ProtectedRoute>
           }
         />

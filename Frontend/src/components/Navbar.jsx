@@ -63,6 +63,11 @@ function Navbar() {
                   Campus Feed
                 </Link>
               </li>
+              <li className="nav-item">
+                <Link className="nav-link" to="/archive">
+                  Archive
+                </Link>
+              </li>
               <li className="nav-item dropdown">
                 <button
                   className="nav-link dropdown-toggle btn border-0"
