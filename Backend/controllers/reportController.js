@@ -239,6 +239,44 @@ const getAssignedReports = async (req, res) => {
     });
   }
 };
+const updateReport = async (req, res) => {
+  try {
+    const report = req.report;
+    const { title, description } = req.body || {};
+    if (
+      typeof title !== "string" ||
+      title.trim().length < 5 ||
+      typeof description !== "string" ||
+      description.trim().length < 10
+    ) {
+      return res.status(400).json({
+        message: "The title or descrebtion is empty",
+      });
+    }
+    if (String(req.user._id) !== String(report.reportedBy._id)) {
+      return res.status(403).json({
+        message: "You are not allowed to change this report",
+      });
+    }
+    if (report.status !== "open") {
+      return res.status(409).json({
+        message: "You are not allowed to change this report",
+      });
+    }
+    report.title = title.trim();
+    report.description = description.trim();
+    await report.save();
+    res.status(200).json({
+      message: "Report was updated",
+      report,
+    });
+  } catch (error) {
+    console.error(error.message);
+    return res.status(500).json({
+      message: "Internal server error",
+    });
+  }
+};
 module.exports = {
   createReport,
   getReports,
@@ -249,4 +287,5 @@ module.exports = {
   getReportById,
   getMyReports,
   getAssignedReports,
+  updateReport,
 };

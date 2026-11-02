@@ -8,6 +8,7 @@ const {
   getReportById,
   getMyReports,
   getAssignedReports,
+  updateReport,
 } = require("../controllers/reportController");
 const { uploadReportImages } = require("../controllers/imageController");
 const { protect } = require("../middleware/AuthenticationMiddleware");
@@ -62,4 +63,5 @@ router.post(
   upload.array("images", 2),
   uploadReportImages,
 );
+router.patch("/:id", protect, validateReportId, findReport, updateReport);
 module.exports = router;
