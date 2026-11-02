@@ -2,6 +2,7 @@ const mongoose = require("mongoose");
 const locationModel = require("../models/locationModel");
 const reportModel = require("../models/reportModel");
 const userModel = require("../models/user");
+const cloudinary = require("../config/cloudinary");
 const createReport = async (req, res) => {
   const { title, description, location } = req.body || {};
   if (
@@ -277,6 +278,38 @@ const updateReport = async (req, res) => {
     });
   }
 };
+const deleteReport = async (req, res) => {
+  try {
+    const report = req.report;
+    if (String(req.user._id) !== String(report.reportedBy._id)) {
+      return res.status(403).json({
+        message: "You are not allowed to delete this report",
+      });
+    }
+    if (report.status !== "open") {
+      return res.status(409).json({
+        message: "Only open reports can be deleted",
+      });
+    }
+    for (const image of report.images) {
+      const result = await cloudinary.uploader.destroy(image.publicId, {
+        invalidate: true,
+      });
+      if (result.result !== "ok" && result.result !== "not found") {
+        throw new Error("Failed to delete image from Cloudinary");
+      }
+    }
+    await report.deleteOne();
+    res.status(200).json({
+      message: "The report was deleted",
+    });
+  } catch (error) {
+    console.error(error.message);
+    return res.status(500).json({
+      message: "Internal server error",
+    });
+  }
+};
 module.exports = {
   createReport,
   getReports,
@@ -288,4 +321,5 @@ module.exports = {
   getMyReports,
   getAssignedReports,
   updateReport,
+  deleteReport,
 };

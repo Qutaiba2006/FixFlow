@@ -9,6 +9,7 @@ const {
   getMyReports,
   getAssignedReports,
   updateReport,
+  deleteReport,
 } = require("../controllers/reportController");
 const { uploadReportImages } = require("../controllers/imageController");
 const { protect } = require("../middleware/AuthenticationMiddleware");
@@ -64,4 +65,5 @@ router.post(
   uploadReportImages,
 );
 router.patch("/:id", protect, validateReportId, findReport, updateReport);
+router.delete("/:id", protect, validateReportId, findReport, deleteReport);
 module.exports = router;
