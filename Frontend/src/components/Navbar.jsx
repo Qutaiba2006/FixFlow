@@ -2,13 +2,15 @@ import { Link } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 function Navbar() {
   const navigate = useNavigate();
+  const user = JSON.parse(localStorage.getItem("user"));
   const handleLogout = () => {
-  localStorage.removeItem("JWT");
-  navigate("/login", { replace: true });
-};
+    localStorage.removeItem("JWT");
+    localStorage.removeItem("user");
+    navigate("/login", { replace: true });
+  };
   return (
     <div>
-      <nav class="navbar navbar-expand-lg bg-body-tertiary">
+      <nav className="navbar navbar-expand-lg bg-body-tertiary">
         <div className="container-fluid px-3 px-lg-4">
           <Link
             to="/dashboard"
@@ -30,6 +32,13 @@ function Navbar() {
           </button>
           <div className="collapse navbar-collapse" id="navbarSupportedContent">
             <ul className="navbar-nav me-auto mb-2 mb-lg-0">
+              {user?.role === "technician" && (
+                <li className="nav-item">
+                  <Link className="nav-link" to="/technician-dashboard">
+                    Technician Dashboard
+                  </Link>
+                </li>
+              )}
               <li className="nav-item">
                 <Link className="nav-link" to="/my-reports">
                   My Reports
@@ -62,7 +71,11 @@ function Navbar() {
                     <hr className="dropdown-divider" />
                   </li>
                   <li>
-                    <button type="button" className="dropdown-item text-danger" onClick={handleLogout}>
+                    <button
+                      type="button"
+                      className="dropdown-item text-danger"
+                      onClick={handleLogout}
+                    >
                       <i className="bi bi-box-arrow-right me-2"></i>
                       Logout
                     </button>

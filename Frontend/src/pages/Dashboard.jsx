@@ -4,6 +4,8 @@ import axios from "axios";
 import ReportCard from "../components/ReportCard";
 function Dashboard() {
   const [reports, setReports] = useState([]);
+  const [pendingReports, setPendingReports] = useState([]);
+  const [interactionErrors, setInteractionErrors] = useState({});
   useEffect(() => {
     const fetchReports = async () => {
       try {
@@ -20,6 +22,9 @@ function Dashboard() {
     fetchReports();
   }, []);
   const handleSupport = async (id) => {
+    if (pendingReports.includes(id)) return;
+    setPendingReports((prevReports) => [...prevReports, id]);
+    setInteractionErrors((prevErrors) => ({ ...prevErrors, [id]: "" }));
     try {
       const token = localStorage.getItem("JWT");
       const response = await axios.patch(
@@ -39,15 +44,26 @@ function Dashboard() {
           return {
             ...report,
             supportCount: response.data.supportCount,
+            affectedCount: response.data.affectedCount,
             priorityScore: response.data.priorityScore,
           };
         }),
       );
     } catch (error) {
-      console.log(error.response?.data?.message || error.message);
+      setInteractionErrors((prevErrors) => ({
+        ...prevErrors,
+        [id]: error.response?.data?.message || error.message,
+      }));
+    } finally {
+      setPendingReports((prevReports) =>
+        prevReports.filter((reportId) => reportId !== id),
+      );
     }
   };
   const handleAffected = async (id) => {
+    if (pendingReports.includes(id)) return;
+    setPendingReports((prevReports) => [...prevReports, id]);
+    setInteractionErrors((prevErrors) => ({ ...prevErrors, [id]: "" }));
     try {
       const token = localStorage.getItem("JWT");
       const response = await axios.patch(
@@ -66,13 +82,21 @@ function Dashboard() {
           }
           return {
             ...report,
+            supportCount: response.data.supportCount,
             affectedCount: response.data.affectedCount,
             priorityScore: response.data.priorityScore,
           };
         }),
       );
     } catch (error) {
-      console.log(error.response?.data?.message || error.message);
+      setInteractionErrors((prevErrors) => ({
+        ...prevErrors,
+        [id]: error.response?.data?.message || error.message,
+      }));
+    } finally {
+      setPendingReports((prevReports) =>
+        prevReports.filter((reportId) => reportId !== id),
+      );
     }
   };
   return (
@@ -97,6 +121,8 @@ function Dashboard() {
                 report={elem}
                 onSupport={handleSupport}
                 onAffected={handleAffected}
+                isPending={pendingReports.includes(elem._id)}
+                interactionError={interactionErrors[elem._id]}
               />
             </div>
           );

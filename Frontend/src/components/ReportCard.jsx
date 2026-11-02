@@ -1,5 +1,12 @@
 import { Link } from "react-router-dom";
-function ReportCard({ report, onSupport, onAffected, showActions = true }) {
+function ReportCard({
+  report,
+  onSupport,
+  onAffected,
+  showActions = true,
+  isPending = false,
+  interactionError = "",
+}) {
   const statusClasses = {
     open: "text-bg-warning",
     in_progress: "text-bg-primary",
@@ -44,6 +51,7 @@ function ReportCard({ report, onSupport, onAffected, showActions = true }) {
               <div className="d-flex flex-wrap gap-2">
                 <button
                   className="btn btn-outline-primary btn-sm"
+                  disabled={isPending}
                   onClick={() => onSupport(report._id)}
                 >
                   <i className="bi bi-hand-thumbs-up-fill me-1"></i>
@@ -51,6 +59,7 @@ function ReportCard({ report, onSupport, onAffected, showActions = true }) {
                 </button>
                 <button
                   className="btn btn-outline-primary btn-sm"
+                  disabled={isPending}
                   onClick={() => onAffected(report._id)}
                 >
                   <i className="bi bi-people-fill me-1"></i>
@@ -63,6 +72,11 @@ function ReportCard({ report, onSupport, onAffected, showActions = true }) {
             Priority Score: {report.priorityScore}
           </span>
         </div>
+        {interactionError && (
+          <div className="alert alert-danger text-break mt-3 mb-0" role="alert">
+            Could not update report. {interactionError}
+          </div>
+        )}
       </div>
     </div>
   );
