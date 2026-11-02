@@ -22,13 +22,16 @@ function AdminDashboard() {
     if (!isAdmin) return;
     const fetchDashboard = async () => {
       try {
-        const response = await axios.get("http://localhost:5000/api/reports", {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("JWT")}`,
+        const response = await axios.get(
+          "https://fixflow-backend-4hrf.onrender.com/api/reports",
+          {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("JWT")}`,
+            },
           },
-        });
+        );
         const techniciansResponse = await axios.get(
-          "http://localhost:5000/api/users/technicians",
+          "https://fixflow-backend-4hrf.onrender.com/api/users/technicians",
           {
             headers: {
               Authorization: `Bearer ${localStorage.getItem("JWT")}`,
@@ -55,7 +58,7 @@ function AdminDashboard() {
     try {
       const token = localStorage.getItem("JWT");
       const response = await axios.patch(
-        `http://localhost:5000/api/reports/${id}/assign`,
+        `https://fixflow-backend-4hrf.onrender.com/api/reports/${id}/assign`,
         { technicianId },
         {
           headers: {
@@ -90,7 +93,7 @@ function AdminDashboard() {
     try {
       const token = localStorage.getItem("JWT");
       const response = await axios.patch(
-        `http://localhost:5000/api/reports/${id}/status`,
+        `https://fixflow-backend-4hrf.onrender.com/api/reports/${id}/status`,
         { status },
         {
           headers: {

@@ -20,7 +20,7 @@ function TechnicianDashboard() {
     const fetchAssignedReports = async () => {
       try {
         const response = await axios.get(
-          "http://localhost:5000/api/reports/assigned",
+          "https://fixflow-backend-4hrf.onrender.com/api/reports/assigned",
           {
             headers: {
               Authorization: `Bearer ${localStorage.getItem("JWT")}`,
@@ -44,7 +44,7 @@ function TechnicianDashboard() {
     try {
       const token = localStorage.getItem("JWT");
       const response = await axios.patch(
-        `http://localhost:5000/api/reports/${id}/status`,
+        `https://fixflow-backend-4hrf.onrender.com/api/reports/${id}/status`,
         { status },
         {
           headers: {

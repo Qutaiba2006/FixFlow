@@ -16,9 +16,10 @@ function Dashboard() {
       (report.title || "").toLowerCase().includes(searchTerm) ||
       (report.description || "").toLowerCase().includes(searchTerm) ||
       (report.location?.name || "").toLowerCase().includes(searchTerm);
-    const matchesStatus = statusFilter === "active"
-      ? report.status === "open" || report.status === "in_progress"
-      : statusFilter === "all" || report.status === statusFilter;
+    const matchesStatus =
+      statusFilter === "active"
+        ? report.status === "open" || report.status === "in_progress"
+        : statusFilter === "all" || report.status === statusFilter;
     return matchesSearch && matchesStatus;
   });
   const reportsPerPage = 6;
@@ -30,11 +31,14 @@ function Dashboard() {
   useEffect(() => {
     const fetchReports = async () => {
       try {
-        const response = await axios.get("http://localhost:5000/api/reports", {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("JWT")}`,
+        const response = await axios.get(
+          "https://fixflow-backend-4hrf.onrender.com/api/reports",
+          {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("JWT")}`,
+            },
           },
-        });
+        );
         setReports(response.data);
       } catch (error) {
         setError(error.response?.data?.message || error.message);
@@ -51,7 +55,7 @@ function Dashboard() {
     try {
       const token = localStorage.getItem("JWT");
       const response = await axios.patch(
-        `http://localhost:5000/api/reports/${id}/support`,
+        `https://fixflow-backend-4hrf.onrender.com/api/reports/${id}/support`,
         {},
         {
           headers: {
@@ -90,7 +94,7 @@ function Dashboard() {
     try {
       const token = localStorage.getItem("JWT");
       const response = await axios.patch(
-        `http://localhost:5000/api/reports/${id}/affected`,
+        `https://fixflow-backend-4hrf.onrender.com/api/reports/${id}/affected`,
         {},
         {
           headers: {
@@ -131,14 +135,21 @@ function Dashboard() {
         </p>
       </div>
       {loading ? (
-        <p className="text-secondary" role="status">Loading reports...</p>
+        <p className="text-secondary" role="status">
+          Loading reports...
+        </p>
       ) : error ? (
-        <div className="alert alert-danger" role="alert">{error}</div>
+        <div className="alert alert-danger" role="alert">
+          {error}
+        </div>
       ) : (
         <>
           <div className="row g-2 align-items-end mb-3">
             <div className="col-12 col-md-8">
-              <label htmlFor="report-search" className="form-label fw-semibold mb-1">
+              <label
+                htmlFor="report-search"
+                className="form-label fw-semibold mb-1"
+              >
                 Search Reports
               </label>
               <input
@@ -154,7 +165,10 @@ function Dashboard() {
               />
             </div>
             <div className="col-12 col-md-4">
-              <label htmlFor="report-status" className="form-label fw-semibold mb-1">
+              <label
+                htmlFor="report-status"
+                className="form-label fw-semibold mb-1"
+              >
                 Status
               </label>
               <select
@@ -175,7 +189,8 @@ function Dashboard() {
             </div>
           </div>
           <p className="text-secondary mb-3" role="status" aria-live="polite">
-            {filteredReports.length} matching {filteredReports.length === 1 ? "report" : "reports"}
+            {filteredReports.length} matching{" "}
+            {filteredReports.length === 1 ? "report" : "reports"}
           </p>
           {filteredReports.length === 0 ? (
             <div className="alert alert-info" role="status">
@@ -207,7 +222,9 @@ function Dashboard() {
               </p>
               <nav aria-label="Campus Feed pages">
                 <ul className="pagination flex-wrap mb-0">
-                  <li className={`page-item ${currentPage === 1 ? "disabled" : ""}`}>
+                  <li
+                    className={`page-item ${currentPage === 1 ? "disabled" : ""}`}
+                  >
                     <button
                       type="button"
                       className="page-link"
@@ -217,7 +234,9 @@ function Dashboard() {
                       Previous
                     </button>
                   </li>
-                  <li className={`page-item ${currentPage === totalPages ? "disabled" : ""}`}>
+                  <li
+                    className={`page-item ${currentPage === totalPages ? "disabled" : ""}`}
+                  >
                     <button
                       type="button"
                       className="page-link"

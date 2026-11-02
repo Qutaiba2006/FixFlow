@@ -5,16 +5,21 @@ function Archive() {
   const [reports, setReports] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  const archivedReports = reports.filter((report) => report.status === "resolved");
+  const archivedReports = reports.filter(
+    (report) => report.status === "resolved",
+  );
 
   useEffect(() => {
     const fetchReports = async () => {
       try {
-        const response = await axios.get("http://localhost:5000/api/reports", {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("JWT")}`,
+        const response = await axios.get(
+          "https://fixflow-backend-4hrf.onrender.com/api/reports",
+          {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("JWT")}`,
+            },
           },
-        });
+        );
         setReports(response.data);
       } catch (error) {
         setError(error.response?.data?.message || error.message);
@@ -34,11 +39,17 @@ function Archive() {
         </p>
       </div>
       {loading ? (
-        <p className="text-secondary" role="status">Loading archived reports...</p>
+        <p className="text-secondary" role="status">
+          Loading archived reports...
+        </p>
       ) : error ? (
-        <div className="alert alert-danger" role="alert">{error}</div>
+        <div className="alert alert-danger" role="alert">
+          {error}
+        </div>
       ) : archivedReports.length === 0 ? (
-        <div className="alert alert-info" role="status">No resolved reports yet.</div>
+        <div className="alert alert-info" role="status">
+          No resolved reports yet.
+        </div>
       ) : (
         <div className="row g-3">
           {archivedReports.map((elem) => {

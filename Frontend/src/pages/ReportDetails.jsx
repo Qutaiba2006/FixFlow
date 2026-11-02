@@ -16,7 +16,8 @@ function ReportDetails() {
   const [actionError, setActionError] = useState("");
   const [actionStatus, setActionStatus] = useState(null);
   const [successMessage, setSuccessMessage] = useState("");
-  const isOwner = Boolean(user?.id) &&
+  const isOwner =
+    Boolean(user?.id) &&
     user.id === (report?.reportedBy?._id || report?.reportedBy);
   const canManageReport = isOwner && report?.status === "open";
   const isProcessing = isSaving || isDeleting;
@@ -48,7 +49,7 @@ function ReportDetails() {
       setSuccessMessage("");
       try {
         const response = await axios.get(
-          `http://localhost:5000/api/reports/${id}`,
+          `https://fixflow-backend-4hrf.onrender.com/api/reports/${id}`,
           {
             headers: {
               Authorization: `Bearer ${localStorage.getItem("JWT")}`,
@@ -88,7 +89,8 @@ function ReportDetails() {
     const status = error.response?.status;
     let message = error.response?.data?.message || error.message;
     if (status === 400) {
-      message = error.response?.data?.message || "Please check your report details.";
+      message =
+        error.response?.data?.message || "Please check your report details.";
     } else if (status === 401) {
       message = "Please sign in again to manage this report.";
     } else if (status === 403) {
@@ -110,18 +112,22 @@ function ReportDetails() {
     setActionError("");
     setSuccessMessage("");
     if (title.trim().length < 5) {
-      setActionError("Title must be at least 5 characters after trimming spaces.");
+      setActionError(
+        "Title must be at least 5 characters after trimming spaces.",
+      );
       return;
     }
     if (description.trim().length < 10) {
-      setActionError("Description must be at least 10 characters after trimming spaces.");
+      setActionError(
+        "Description must be at least 10 characters after trimming spaces.",
+      );
       return;
     }
     setIsSaving(true);
     try {
       const token = localStorage.getItem("JWT");
       const response = await axios.patch(
-        `http://localhost:5000/api/reports/${id}`,
+        `https://fixflow-backend-4hrf.onrender.com/api/reports/${id}`,
         { title: title.trim(), description: description.trim() },
         {
           headers: {
@@ -148,17 +154,21 @@ function ReportDetails() {
 
   const handleDelete = async () => {
     if (!canManageReport || isProcessing || actionsBlocked) return;
-    if (!window.confirm("Delete this report? This action cannot be undone.")) return;
+    if (!window.confirm("Delete this report? This action cannot be undone."))
+      return;
     setActionError("");
     setSuccessMessage("");
     setIsDeleting(true);
     try {
       const token = localStorage.getItem("JWT");
-      await axios.delete(`http://localhost:5000/api/reports/${id}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
+      await axios.delete(
+        `https://fixflow-backend-4hrf.onrender.com/api/reports/${id}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
         },
-      });
+      );
       navigate("/my-reports");
     } catch (error) {
       handleActionError(error, "delete");
@@ -214,13 +224,20 @@ function ReportDetails() {
               </span>
             </div>
             {actionError && (
-              <div className="alert alert-danger text-break mt-3 mb-0" role="alert">
+              <div
+                className="alert alert-danger text-break mt-3 mb-0"
+                role="alert"
+              >
                 {actionError}
                 {actionStatus === 401 && (
-                  <Link to="/login" className="alert-link ms-2">Sign in</Link>
+                  <Link to="/login" className="alert-link ms-2">
+                    Sign in
+                  </Link>
                 )}
                 {actionStatus === 404 && (
-                  <Link to="/my-reports" className="alert-link ms-2">My Reports</Link>
+                  <Link to="/my-reports" className="alert-link ms-2">
+                    My Reports
+                  </Link>
                 )}
               </div>
             )}
@@ -234,7 +251,10 @@ function ReportDetails() {
                 {isEditing ? (
                   <form onSubmit={handleSave}>
                     <h4 className="fw-bold text-dark mb-3">Edit Report</h4>
-                    <label htmlFor="edit-title" className="form-label fw-semibold">
+                    <label
+                      htmlFor="edit-title"
+                      className="form-label fw-semibold"
+                    >
                       Title
                     </label>
                     <input
@@ -247,7 +267,10 @@ function ReportDetails() {
                       disabled={isProcessing || actionsBlocked}
                       onChange={(e) => setTitle(e.target.value)}
                     />
-                    <label htmlFor="edit-description" className="form-label fw-semibold">
+                    <label
+                      htmlFor="edit-description"
+                      className="form-label fw-semibold"
+                    >
                       Description
                     </label>
                     <textarea
@@ -339,14 +362,18 @@ function ReportDetails() {
                           </time>
                         </div>
                         {event.details && (
-                          <p className="text-break mt-2 mb-0">{event.details}</p>
+                          <p className="text-break mt-2 mb-0">
+                            {event.details}
+                          </p>
                         )}
                       </li>
                     );
                   })}
                 </ol>
               ) : (
-                <p className="text-secondary mb-0">No maintenance history yet.</p>
+                <p className="text-secondary mb-0">
+                  No maintenance history yet.
+                </p>
               )}
             </div>
           </div>

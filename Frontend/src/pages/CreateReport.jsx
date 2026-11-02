@@ -15,7 +15,7 @@ function CreateReport() {
     const fetchLocations = async () => {
       try {
         const response = await axios.get(
-          "http://localhost:5000/api/locations",
+          "https://fixflow-backend-4hrf.onrender.com/api/locations",
           {
             headers: {
               Authorization: `Bearer ${localStorage.getItem("JWT")}`,
@@ -39,7 +39,7 @@ function CreateReport() {
       const token = localStorage.getItem("JWT");
       if (!reportId) {
         const response = await axios.post(
-          "http://localhost:5000/api/reports",
+          "https://fixflow-backend-4hrf.onrender.com/api/reports",
           {
             title,
             description,
@@ -63,7 +63,7 @@ function CreateReport() {
           formData.append("images", file);
         });
         await axios.post(
-          `http://localhost:5000/api/reports/${reportId}/images`,
+          `https://fixflow-backend-4hrf.onrender.com/api/reports/${reportId}/images`,
           formData,
           {
             headers: {
@@ -195,7 +195,12 @@ function CreateReport() {
                 Maximum 2 images, 5MB each.
               </small>
               {imageError && (
-                <div className="alert alert-danger text-break py-2 mb-3" role="alert">{imageError}</div>
+                <div
+                  className="alert alert-danger text-break py-2 mb-3"
+                  role="alert"
+                >
+                  {imageError}
+                </div>
               )}
               {images.length > 0 && (
                 <p className="small text-success mb-3">
@@ -217,7 +222,12 @@ function CreateReport() {
                       : "Create Report"}
               </button>
               {submitError && (
-                <div className="alert alert-danger text-break mt-3 mb-0" role="alert">{submitError}</div>
+                <div
+                  className="alert alert-danger text-break mt-3 mb-0"
+                  role="alert"
+                >
+                  {submitError}
+                </div>
               )}
             </form>
           </div>

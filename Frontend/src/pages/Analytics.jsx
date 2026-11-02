@@ -9,8 +9,16 @@ function Analytics() {
   const statistics = [
     { label: "Total Reports", value: summary?.totalReports, color: "primary" },
     { label: "Open Reports", value: summary?.openReports, color: "warning" },
-    { label: "In Progress", value: summary?.inProgressReports, color: "primary" },
-    { label: "Resolved Reports", value: summary?.resolvedReports, color: "success" },
+    {
+      label: "In Progress",
+      value: summary?.inProgressReports,
+      color: "primary",
+    },
+    {
+      label: "Resolved Reports",
+      value: summary?.resolvedReports,
+      color: "success",
+    },
   ];
 
   useEffect(() => {
@@ -18,7 +26,7 @@ function Analytics() {
     const fetchAnalytics = async () => {
       try {
         const response = await axios.get(
-          "http://localhost:5000/api/analytics/summary",
+          "https://fixflow-backend-4hrf.onrender.com/api/analytics/summary",
           {
             headers: {
               Authorization: `Bearer ${localStorage.getItem("JWT")}`,
@@ -75,7 +83,9 @@ function Analytics() {
                       <h5 className="card-title text-secondary mb-3">
                         {statistic.label}
                       </h5>
-                      <p className={`display-6 fw-bold mb-0 text-${statistic.color}`}>
+                      <p
+                        className={`display-6 fw-bold mb-0 text-${statistic.color}`}
+                      >
                         {statistic.value}
                       </p>
                     </div>
@@ -86,12 +96,15 @@ function Analytics() {
           </div>
           <div className="card bg-white shadow-sm mt-4">
             <div className="card-body p-4">
-              <h4 className="fw-bold text-dark mb-4">Report Status Comparison</h4>
+              <h4 className="fw-bold text-dark mb-4">
+                Report Status Comparison
+              </h4>
               {statistics.map((statistic, index) => {
                 if (index === 0) return null;
-                const percentage = summary.totalReports > 0
-                  ? Math.round((statistic.value / summary.totalReports) * 100)
-                  : 0;
+                const percentage =
+                  summary.totalReports > 0
+                    ? Math.round((statistic.value / summary.totalReports) * 100)
+                    : 0;
                 return (
                   <div key={statistic.label} className="mb-3">
                     <div className="d-flex flex-wrap justify-content-between gap-2 mb-2">

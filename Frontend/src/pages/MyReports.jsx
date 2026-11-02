@@ -7,7 +7,7 @@ function MyReports() {
     const fetchMyReports = async () => {
       try {
         const response = await axios.get(
-          "http://localhost:5000/api/reports/mine",
+          "https://fixflow-backend-4hrf.onrender.com/api/reports/mine",
           {
             headers: {
               Authorization: `Bearer ${localStorage.getItem("JWT")}`,

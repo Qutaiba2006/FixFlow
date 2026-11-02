@@ -11,11 +11,14 @@ function Register() {
     e.preventDefault();
     setErrorMessage("");
     try {
-      await axios.post("http://localhost:5000/api/auth/register", {
-        name: name,
-        email: email,
-        password: password,
-      });
+      await axios.post(
+        "https://fixflow-backend-4hrf.onrender.com/api/auth/register",
+        {
+          name: name,
+          email: email,
+          password: password,
+        },
+      );
       navigate("/login");
     } catch (error) {
       setErrorMessage(error.response?.data?.message || "Registration failed");
