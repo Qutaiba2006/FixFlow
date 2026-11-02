@@ -1,11 +1,26 @@
 import { useState, useEffect } from "react";
-import { Link, useParams } from "react-router-dom";
+import { Link, useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
 function ReportDetails() {
   const { id } = useParams();
+  const navigate = useNavigate();
+  const user = JSON.parse(localStorage.getItem("user"));
   const [report, setReport] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [isEditing, setIsEditing] = useState(false);
+  const [title, setTitle] = useState("");
+  const [description, setDescription] = useState("");
+  const [isSaving, setIsSaving] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [actionError, setActionError] = useState("");
+  const [actionStatus, setActionStatus] = useState(null);
+  const [successMessage, setSuccessMessage] = useState("");
+  const isOwner = Boolean(user?.id) &&
+    user.id === (report?.reportedBy?._id || report?.reportedBy);
+  const canManageReport = isOwner && report?.status === "open";
+  const isProcessing = isSaving || isDeleting;
+  const actionsBlocked = [401, 403, 404, 409].includes(actionStatus);
   const statusClasses = {
     open: "text-bg-warning",
     in_progress: "text-bg-primary",
@@ -25,6 +40,12 @@ function ReportDetails() {
       setLoading(true);
       setError("");
       setReport(null);
+      setIsEditing(false);
+      setTitle("");
+      setDescription("");
+      setActionError("");
+      setActionStatus(null);
+      setSuccessMessage("");
       try {
         const response = await axios.get(
           `http://localhost:5000/api/reports/${id}`,
@@ -45,6 +66,106 @@ function ReportDetails() {
     };
     fetchReport();
   }, [id]);
+
+  const handleEdit = () => {
+    if (!canManageReport || isProcessing || actionsBlocked) return;
+    setTitle(report.title);
+    setDescription(report.description);
+    setActionError("");
+    setSuccessMessage("");
+    setIsEditing(true);
+  };
+
+  const handleCancel = () => {
+    if (isProcessing) return;
+    setIsEditing(false);
+    setTitle("");
+    setDescription("");
+    if (!actionsBlocked) setActionError("");
+  };
+
+  const handleActionError = (error, action) => {
+    const status = error.response?.status;
+    let message = error.response?.data?.message || error.message;
+    if (status === 400) {
+      message = error.response?.data?.message || "Please check your report details.";
+    } else if (status === 401) {
+      message = "Please sign in again to manage this report.";
+    } else if (status === 403) {
+      message = `You do not have permission to ${action} this report.`;
+    } else if (status === 404) {
+      message = "This report could not be found. It may have been deleted.";
+    } else if (status === 409) {
+      message = `${message} Refresh the page to check the report's current state.`;
+    } else if (action === "delete" && report.images?.length > 0) {
+      message = `${message} Some attached images may already have been removed. Refresh the page before retrying.`;
+    }
+    setActionStatus(status || null);
+    setActionError(message);
+  };
+
+  const handleSave = async (e) => {
+    e.preventDefault();
+    if (!canManageReport || isProcessing || actionsBlocked) return;
+    setActionError("");
+    setSuccessMessage("");
+    if (title.trim().length < 5) {
+      setActionError("Title must be at least 5 characters after trimming spaces.");
+      return;
+    }
+    if (description.trim().length < 10) {
+      setActionError("Description must be at least 10 characters after trimming spaces.");
+      return;
+    }
+    setIsSaving(true);
+    try {
+      const token = localStorage.getItem("JWT");
+      const response = await axios.patch(
+        `http://localhost:5000/api/reports/${id}`,
+        { title: title.trim(), description: description.trim() },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        },
+      );
+      setReport((prevReport) => {
+        if (!prevReport || prevReport._id !== id) return prevReport;
+        return {
+          ...prevReport,
+          title: response.data.report.title,
+          description: response.data.report.description,
+        };
+      });
+      setSuccessMessage(response.data.message);
+      setIsEditing(false);
+    } catch (error) {
+      handleActionError(error, "edit");
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const handleDelete = async () => {
+    if (!canManageReport || isProcessing || actionsBlocked) return;
+    if (!window.confirm("Delete this report? This action cannot be undone.")) return;
+    setActionError("");
+    setSuccessMessage("");
+    setIsDeleting(true);
+    try {
+      const token = localStorage.getItem("JWT");
+      await axios.delete(`http://localhost:5000/api/reports/${id}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      navigate("/my-reports");
+    } catch (error) {
+      handleActionError(error, "delete");
+    } finally {
+      setIsDeleting(false);
+    }
+  };
 
   return (
     <div className="container py-4">
@@ -92,6 +213,93 @@ function ReportDetails() {
                 Priority Score: {report.priorityScore}
               </span>
             </div>
+            {actionError && (
+              <div className="alert alert-danger text-break mt-3 mb-0" role="alert">
+                {actionError}
+                {actionStatus === 401 && (
+                  <Link to="/login" className="alert-link ms-2">Sign in</Link>
+                )}
+                {actionStatus === 404 && (
+                  <Link to="/my-reports" className="alert-link ms-2">My Reports</Link>
+                )}
+              </div>
+            )}
+            {successMessage && (
+              <div className="alert alert-success mt-3 mb-0" role="status">
+                {successMessage}
+              </div>
+            )}
+            {canManageReport && (
+              <div className="border-top mt-3 pt-3">
+                {isEditing ? (
+                  <form onSubmit={handleSave}>
+                    <h4 className="fw-bold text-dark mb-3">Edit Report</h4>
+                    <label htmlFor="edit-title" className="form-label fw-semibold">
+                      Title
+                    </label>
+                    <input
+                      id="edit-title"
+                      type="text"
+                      className="form-control mb-3"
+                      value={title}
+                      required
+                      minLength={5}
+                      disabled={isProcessing || actionsBlocked}
+                      onChange={(e) => setTitle(e.target.value)}
+                    />
+                    <label htmlFor="edit-description" className="form-label fw-semibold">
+                      Description
+                    </label>
+                    <textarea
+                      id="edit-description"
+                      rows={4}
+                      className="form-control mb-3"
+                      value={description}
+                      required
+                      minLength={10}
+                      disabled={isProcessing || actionsBlocked}
+                      onChange={(e) => setDescription(e.target.value)}
+                    ></textarea>
+                    <div className="d-flex flex-wrap gap-2">
+                      <button
+                        type="submit"
+                        className="btn btn-primary"
+                        disabled={isProcessing || actionsBlocked}
+                      >
+                        {isSaving ? "Saving..." : "Save Changes"}
+                      </button>
+                      <button
+                        type="button"
+                        className="btn btn-outline-secondary"
+                        disabled={isProcessing}
+                        onClick={handleCancel}
+                      >
+                        Cancel
+                      </button>
+                    </div>
+                  </form>
+                ) : (
+                  <div className="d-flex flex-wrap gap-2">
+                    <button
+                      type="button"
+                      className="btn btn-outline-primary"
+                      disabled={isProcessing || actionsBlocked}
+                      onClick={handleEdit}
+                    >
+                      Edit
+                    </button>
+                    <button
+                      type="button"
+                      className="btn btn-outline-danger"
+                      disabled={isProcessing || actionsBlocked}
+                      onClick={handleDelete}
+                    >
+                      {isDeleting ? "Deleting..." : "Delete"}
+                    </button>
+                  </div>
+                )}
+              </div>
+            )}
             {report.images?.length > 0 ? (
               <div className="row g-3 mt-3">
                 {report.images.map((image, index) => {

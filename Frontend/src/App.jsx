@@ -3,7 +3,7 @@ import Register from "./pages/Register";
 import Dashboard from "./pages/Dashboard";
 import Navbar from "./components/Navbar";
 import Account from "./pages/Account";
-import { Route, Routes } from "react-router-dom";
+import { Route, Routes, Navigate } from "react-router-dom";
 import CreateReport from "./pages/CreateReport";
 import ProtectedRoute from "./components/ProtectedRoute";
 import { useLocation } from "react-router-dom";
@@ -22,7 +22,16 @@ function App() {
     <div>
       {showNavbar && <Navbar />}
       <Routes>
-        <Route path="/Login" element={<Login />} />
+        <Route
+          path="/"
+          element={
+            <Navigate
+              to={localStorage.getItem("JWT") ? "/dashboard" : "/login"}
+              replace
+            />
+          }
+        />
+        <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route
           path="/dashboard"
@@ -88,6 +97,7 @@ function App() {
             </ProtectedRoute>
           }
         />
+        <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </div>
   );
